@@ -1,13 +1,10 @@
-using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
+﻿using FluentValidation;
 using MediatR;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using SynetecAssessmentApi.Foundation.Core.Extensions;
 using SynetecAssessmentApi.Foundation.Core.Interfaces;
 using SynetecAssessmentApi.Foundation.Repositories;
@@ -17,22 +14,16 @@ using SynetecAssessmentApi.Persistence.Repositories;
 using SynetecAssessmentApi.Persistence.Repositories.Interfaces;
 using SynetecAssessmentApi.Services.Queries.Rewards;
 
-namespace SynetecAssessmentApi
+namespace SynetecAssessmentApi.UnitTests.Mocks
 {
-    public class Startup
+    public class MockServices
     {
-        public Startup(IConfiguration configuration, IHostEnvironment environment)
+        /// Configure Service Collection for Test Environment
+        public IServiceCollection ConfigureServices(IServiceCollection services)
         {
-            Configuration = configuration;
-            Environment = environment;
-        }
-
-        public IConfiguration Configuration { get; }
-        private IHostEnvironment Environment { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
+            services.AddLogging();
+            services.AddSingleton<ILoggerFactory, LoggerFactory>();
+            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -54,7 +45,7 @@ namespace SynetecAssessmentApi
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             // =========================================================================================================================================
-
+            
             services.AddScoped<IBonusCalculator, BonusCalculator>();
             
             services.Scan(scan =>
@@ -64,28 +55,7 @@ namespace SynetecAssessmentApi
                     .AddClasses(classes => classes.AssignableTo(typeof(IMap<,>))).AsImplementationOfInterface(typeof(IMap<,>)).WithScopedLifetime()
                     .AddClasses(classes => classes.AssignableTo(typeof(IValidator<>))).AsImplementationOfInterface(typeof(IValidator<>)).WithScopedLifetime();
             });
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SynetecAssessmentApi v1"));
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            return services;
         }
     }
 }

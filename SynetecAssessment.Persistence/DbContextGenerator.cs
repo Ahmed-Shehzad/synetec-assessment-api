@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SynetecAssessmentApi.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SynetecAssessmentApi.Domain.Entities;
 
 namespace SynetecAssessmentApi.Persistence
 {
@@ -49,6 +49,7 @@ namespace SynetecAssessmentApi.Persistence
             context.Employees.AddRange(employees);
 
             context.SaveChanges();
+            context.Database.EnsureCreated();
         }
     }
 }

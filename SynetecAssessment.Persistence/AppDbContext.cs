@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SynetecAssessmentApi.Domain;
 using System.Reflection;
+using SynetecAssessmentApi.Domain.Entities;
 
 namespace SynetecAssessmentApi.Persistence
 {
